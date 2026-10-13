@@ -1,0 +1,17 @@
+{
+  "name": "Hồ Sơ Scan",
+  "short_name": "Hồ Sơ Scan",
+  "description": "Scan, xếp thư mục và đối chiếu giấy tờ hộ tịch, đất đai",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0A5BB5",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
