@@ -65,6 +65,7 @@ h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
 .top-in{max-width:640px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:56px}
 .top h1{font-size:18px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brand{display:flex;align-items:center;gap:8px}
+.top h1 .ver{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--sea);background:var(--sea-soft);padding:2px 7px;border-radius:6px;vertical-align:middle;margin-left:4px}
 .brand-mark{width:26px;height:26px;border-radius:7px;background:var(--sea);display:grid;place-items:center;flex:none}
 .brand-mark svg{width:16px;height:16px;stroke:var(--on-sea)}
 .back{border:0;background:var(--surface);width:36px;height:36px;border-radius:10px;display:grid;place-items:center;cursor:pointer;flex:none}
@@ -1172,7 +1173,7 @@ function renderTop(){
     html = `<button class="back" data-act="back" aria-label="Quay lại">${ICON.back}</button><h1>${esc(t)}</h1>`;
   } else {
     const t = {scan:'Hồ Sơ Scan', folders:'Thư mục', compare:'So sánh'}[S.tab];
-    html = `<div class="brand"><span class="brand-mark">${ICON.scan}</span></div><h1>${t}</h1><button class="back" data-act="openSettings" aria-label="Cài đặt và sao lưu">${ICON.gear}</button>`;
+    html = `<div class="brand"><span class="brand-mark">${ICON.scan}</span></div><h1>${t}${S.tab==='scan'?` <span class="ver">v${APP_VERSION}</span>`:''}</h1><button class="back" data-act="openSettings" aria-label="Cài đặt và sao lưu">${ICON.gear}</button>`;
   }
   $('#top').innerHTML = html;
 }
@@ -1980,7 +1981,7 @@ $('#main').addEventListener('pointercancel', pEnd);
 
 Store.on(()=>{ if(Store.mode!=='loading' && !recropSaved.started){ recropSaved.started=true; setTimeout(recropSaved, 1200); } });
 Store.on(()=>{ if(P.g || CR.drag>=0) { renderTabs(); return; } const a=document.activeElement; if(a && (a.tagName==='INPUT'||a.tagName==='SELECT') && (S.phase==='review'||S.editDoc||a.id==='tagIn'||a.id==='rn')) { renderTabs(); return; } render(); });
-const APP_VERSION='1.0.1';
+const APP_VERSION='1.0.2';
 render();
 Store.init();
 if('serviceWorker' in navigator && location.protocol==='https:'){
