@@ -1,8 +1,8 @@
 /* Hồ Sơ Scan: chạy offline. Đổi VERSION mỗi lần cập nhật app. */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const SHELL = 'shell-' + VERSION;
 const RUNTIME = 'runtime-v1';
-const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
+const FILES = ['./', 'index.html', 'ocr-worker.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
