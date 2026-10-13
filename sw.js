@@ -1,5 +1,5 @@
 /* Hồ Sơ Scan: chạy offline. Đổi VERSION mỗi lần cập nhật app. */
-const VERSION = 'v1.0.3';
+const VERSION = 'v1.0.4';
 const SHELL = 'shell-' + VERSION;
 const RUNTIME = 'runtime-v1';
 const FILES = ['./', 'index.html', 'ocr-worker.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
