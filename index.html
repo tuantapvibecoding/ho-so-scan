@@ -1003,29 +1003,19 @@ function parseOCR(text){
   if(type==='cccd' || type==='cmnd'){
     /* CCCD/CMND: chỉ lấy 4 thông tin: họ tên, ngày sinh, số giấy tờ, ngày cấp */
     const p={};
-    /* 1. Họ tên: đối chiếu với dòng tên trong mã MRZ mặt sau (chữ in máy, không dấu) để chắc đúng chữ cái */
-    let nm=labelValue(lines,AB,L_NAME,{valid:v=>goodName(cleanName(v))}); nm=nm?cleanName(nm):'';
-    const mz=mrz.ho_ten_ascii||'';
-    if(mz){
-      const hit=lines.filter(l=>!l.includes('<')).map(l=>cleanName(l)).find(n=>n && base(n)===mz);
-      if(hit) nm=hit;
-      else if(nm && base(nm)!==mz){ const fw=nm.split(' ');
-        /* chữ cái theo MRZ; dấu lấy từ chữ tương ứng ở mặt trước (kể cả khi mặt trước đọc sai 1 chữ cái) */
-        nm=mz.split(' ').map(w=>{ const ex=fw.find(x=>base(x)===w); if(ex) return ex;
-          const cand=fw.filter(x=>[...x].length===w.length).map(x=>({x, same:[...x].filter((ch,i)=>base(ch)===w[i]).length})).sort((p,q)=>q.same-p.same)[0];
-          if(cand && cand.same>=w.length-1) return [...cand.x].map((ch,i)=>base(ch)===w[i]?ch:w[i]).join('');
-          return w; }).join(' ');
-        nameCheck=true; }
-      else if(!nm){ nm=mz; nameCheck=true; }
-    }
-    if(nm) p.ho_ten=nm;
-    /* 2. Ngày sinh: mã MRZ đúng số kiểm tra, không thì lấy ở mặt trước */
-    const dob=labelValue(lines,AB,L_DOB,{valid:v=>DATE_RE.test(v)});
-    p.ngay_sinh = mrz.ngay_sinh || (dob?findDate(dob):'');
-    if(!p.ngay_sinh){ const i=AB.findIndex(b=>/SINH|BIRTH|BITH/.test(b) && DATE_RE.test(b)); if(i>=0) p.ngay_sinh=findDate(lines[i]); }
-    /* 3. Số giấy tờ */
-    if(type==='cccd') p.so_cccd = mrz.so_cccd || (mrz.pidCheck!=null ? ids.twelve.find(n=>mrzCheck(n)===mrz.pidCheck) : null) || ids.twelve[0] || '';
-    else p.so_cmnd = ids.nine[0] || ids.twelve[0] || '';
+    /* Họ tên, ngày sinh, số giấy tờ: chỉ lấy ở mặt trước (bỏ dòng mã MRZ của mặt sau) */
+    const fL=[], fB=[]; lines.forEach((l,i)=>{ if(!l.includes('<') && !/IDVNM/.test(AB[i])){ fL.push(l); fB.push(AB[i]); } });
+    /* 1. Họ tên */
+    const nm=labelValue(fL,fB,L_NAME,{valid:v=>goodName(cleanName(v))}); if(nm) p.ho_ten=cleanName(nm);
+    /* 2. Ngày sinh */
+    const dob=labelValue(fL,fB,L_DOB,{valid:v=>DATE_RE.test(v)}); if(dob) p.ngay_sinh=findDate(dob);
+    if(!p.ngay_sinh){ const i=fB.findIndex(b=>/SINH|BIRTH|BITH/.test(b) && DATE_RE.test(b)); if(i>=0) p.ngay_sinh=findDate(fL[i]); }
+    /* 3. Số giấy tờ: ưu tiên số trên dòng "Số / No." */
+    const fIds=idNumbers(fL.join('\n')), want = type==='cccd' ? /\b\d{12}\b/ : /\b(\d{12}|\d{9})\b/;
+    const si=fB.findIndex(b=>/\bSO\b|\bNO\b/.test(b) && want.test(b.replace(/(\d)[ .](?=\d)/g,'$1')));
+    const onLabel = si>=0 ? fL[si].replace(/(\d)[ .](?=\d)/g,'$1').match(want)?.[0] : '';
+    if(type==='cccd') p.so_cccd = onLabel || fIds.twelve[0] || '';
+    else p.so_cmnd = onLabel || fIds.nine[0] || fIds.twelve[0] || '';
     /* 4. Ngày cấp: dòng "Ngày, tháng, năm / Date, month, year", hoặc "Ngày .. tháng .. năm .." (CMND); bỏ ngày sinh và ngày hết hạn */
     let nc='';
     const li=AB.findIndex(b=>/(NGAY,? THANG,? NAM|DATE,? MONTH,? YEAR)/.test(b) && !/SINH|BIRTH/.test(b));
@@ -2039,7 +2029,7 @@ $('#main').addEventListener('pointercancel', pEnd);
 
 Store.on(()=>{ if(Store.mode!=='loading' && !recropSaved.started){ recropSaved.started=true; setTimeout(recropSaved, 1200); } });
 Store.on(()=>{ if(P.g || CR.drag>=0) { renderTabs(); return; } const a=document.activeElement; if(a && (a.tagName==='INPUT'||a.tagName==='SELECT') && (S.phase==='review'||S.editDoc||a.id==='tagIn'||a.id==='rn')) { renderTabs(); return; } render(); });
-const APP_VERSION='1.0.4';
+const APP_VERSION='1.0.5';
 render();
 Store.init();
 if('serviceWorker' in navigator && location.protocol==='https:'){
